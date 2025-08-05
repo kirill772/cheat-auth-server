@@ -1,12 +1,21 @@
 const express = require('express');
+const fs = require('fs');
 const app = express();
 app.use(express.json());
 
-// В реальном приложении нужно хранить в базе (например MongoDB)
-const keysDB = {
-  "key123": null,
-  "key456": null
-};
+let keysDB = {};
+
+try {
+  const data = fs.readFileSync('keys.json', 'utf8');
+  keysDB = JSON.parse(data);
+  console.log('Keys loaded:', keysDB);
+} catch (err) {
+  console.error('Error reading keys.json:', err);
+}
+
+function saveKeys() {
+  fs.writeFileSync('keys.json', JSON.stringify(keysDB, null, 2));
+}
 
 app.post('/verify', (req, res) => {
   const { key, hwid } = req.body;
@@ -20,18 +29,17 @@ app.post('/verify', (req, res) => {
   }
 
   if (keysDB[key] === null) {
-    // Привязываем ключ к hwid при первом использовании
     keysDB[key] = hwid;
+    saveKeys();
     return res.json({ valid: true });
   } else if (keysDB[key] === hwid) {
-    // Ключ уже привязан к этому ПК
     return res.json({ valid: true });
   } else {
-    // Ключ используется на другом ПК
     return res.json({ valid: false, message: "Key is already used on another PC" });
   }
 });
 
-app.listen(10000, () => {
-  console.log('Auth server started on port 10000');
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`Auth server started on port ${PORT}`);
 });
