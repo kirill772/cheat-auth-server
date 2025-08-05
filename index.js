@@ -13,8 +13,15 @@ try {
   console.error('Error reading keys.json:', err);
 }
 
+const fs = require('fs');
+
 function saveKeys() {
-  fs.writeFileSync('keys.json', JSON.stringify(keysDB, null, 2));
+  try {
+    fs.writeFileSync('keys.json', JSON.stringify(keysDB, null, 2));
+    console.log('keys.json updated');
+  } catch (error) {
+    console.error('Error saving keys.json:', error);
+  }
 }
 
 app.post('/verify', (req, res) => {
@@ -28,11 +35,11 @@ app.post('/verify', (req, res) => {
     return res.json({ valid: false, message: "Invalid key" });
   }
 
-  if (keysDB[key] === null) {
-    keysDB[key] = hwid;
-    saveKeys();
-    return res.json({ valid: true });
-  } else if (keysDB[key] === hwid) {
+if (keysDB[key] === null) {
+  keysDB[key] = hwid;
+  saveKeys(); // обязательно вызываем сохранение
+  return res.json({ valid: true });
+} else if (keysDB[key] === hwid) {
     return res.json({ valid: true });
   } else {
     return res.json({ valid: false, message: "Key is already used on another PC" });
