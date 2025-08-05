@@ -1,12 +1,17 @@
 {
-  "name": "mc-auth-server",
+  "name": "cheat-auth-server",
   "version": "1.0.0",
-  "description": "Simple key-based auth server for Minecraft cheat",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
     "express": "^5.1.0"
   }
 }
