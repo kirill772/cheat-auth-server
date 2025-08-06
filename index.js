@@ -26,7 +26,12 @@ app.post('/verify', (req, res) => {
     // Сохраняем обновлённый keysDB в файл
     fs.writeFileSync(keysPath, JSON.stringify(keysDB, null, 2));
     fs.writeFileSync(keysPath, JSON.stringify(keysDB, null, 2));
-    console.log(`[✔] HWID записан для ключа: ${key} → ${hwid}`);
+try {
+  fs.writeFileSync(keysPath, JSON.stringify(keysDB, null, 2));
+  console.log(`[✔] HWID записан для ключа: ${key} → ${hwid}`);
+} catch (err) {
+  console.error(`[❌] Ошибка при записи в keys.json:`, err);
+}
     return res.json({ valid: true });
   } else if (keysDB[key] === hwid) {
     return res.json({ valid: true });
