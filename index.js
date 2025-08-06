@@ -23,15 +23,13 @@ app.post('/verify', (req, res) => {
     // Привязываем HWID к ключу
     keysDB[key] = hwid;
 
-    // Сохраняем обновлённый keysDB в файл
-    fs.writeFileSync(keysPath, JSON.stringify(keysDB, null, 2));
-    fs.writeFileSync(keysPath, JSON.stringify(keysDB, null, 2));
-try {
-  fs.writeFileSync(keysPath, JSON.stringify(keysDB, null, 2));
-  console.log(`[✔] HWID записан для ключа: ${key} → ${hwid}`);
-} catch (err) {
-  console.error(`[❌] Ошибка при записи в keys.json:`, err);
-}
+    try {
+      fs.writeFileSync(keysPath, JSON.stringify(keysDB, null, 2));
+      console.log(`[✔] HWID записан для ключа: ${key} → ${hwid}`);
+    } catch (err) {
+      console.error(`[❌] Ошибка при записи в keys.json:`, err);
+    }
+
     return res.json({ valid: true });
   } else if (keysDB[key] === hwid) {
     return res.json({ valid: true });
@@ -40,6 +38,8 @@ try {
   }
 });
 
-app.listen(10000, () => {
-  console.log('Auth server started on port 10000');
+const port = process.env.PORT || 10000;
+
+app.listen(port, () => {
+  console.log(`Auth server started on port ${port}`);
 });
