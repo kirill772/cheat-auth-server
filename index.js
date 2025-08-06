@@ -1,19 +1,10 @@
 const express = require('express');
-const fs = require('fs');
+const fs = require('fs'); // ← Только один раз
+
 const app = express();
 app.use(express.json());
 
-let keysDB = {};
-
-try {
-  const data = fs.readFileSync('keys.json', 'utf8');
-  keysDB = JSON.parse(data);
-  console.log('Keys loaded:', keysDB);
-} catch (err) {
-  console.error('Error reading keys.json:', err);
-}
-
-const fs = require('fs');
+let keysDB = JSON.parse(fs.readFileSync('keys.json'));
 
 function saveKeys() {
   try {
@@ -35,18 +26,17 @@ app.post('/verify', (req, res) => {
     return res.json({ valid: false, message: "Invalid key" });
   }
 
-if (keysDB[key] === null) {
-  keysDB[key] = hwid;
-  saveKeys(); // обязательно вызываем сохранение
-  return res.json({ valid: true });
-} else if (keysDB[key] === hwid) {
+  if (keysDB[key] === null) {
+    keysDB[key] = hwid;
+    saveKeys();
+    return res.json({ valid: true });
+  } else if (keysDB[key] === hwid) {
     return res.json({ valid: true });
   } else {
     return res.json({ valid: false, message: "Key is already used on another PC" });
   }
 });
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-  console.log(`Auth server started on port ${PORT}`);
+app.listen(10000, () => {
+  console.log('Auth server started on port 10000');
 });
