@@ -1,19 +1,12 @@
 const express = require('express');
-const fs = require('fs'); // ← Только один раз
-
+const fs = require('fs');
 const app = express();
 app.use(express.json());
 
-let keysDB = JSON.parse(fs.readFileSync('keys.json'));
+const keysPath = './keys.json';
 
-function saveKeys() {
-  try {
-    fs.writeFileSync('keys.json', JSON.stringify(keysDB, null, 2));
-    console.log('keys.json updated');
-  } catch (error) {
-    console.error('Error saving keys.json:', error);
-  }
-}
+// Загружаем ключи из файла
+let keysDB = JSON.parse(fs.readFileSync(keysPath));
 
 app.post('/verify', (req, res) => {
   const { key, hwid } = req.body;
@@ -27,8 +20,12 @@ app.post('/verify', (req, res) => {
   }
 
   if (keysDB[key] === null) {
+    // Привязываем HWID к ключу
     keysDB[key] = hwid;
-    saveKeys();
+
+    // Сохраняем обновлённый keysDB в файл
+    fs.writeFileSync(keysPath, JSON.stringify(keysDB, null, 2));
+
     return res.json({ valid: true });
   } else if (keysDB[key] === hwid) {
     return res.json({ valid: true });
